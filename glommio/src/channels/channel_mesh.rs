@@ -516,6 +516,22 @@ mod tests {
         do_test_channel_mesh(1, 1, 2);
     }
 
+    #[test]
+    fn test_clone_across_threads() {
+        let builder = MeshBuilder::<bool, _>::full(2, 1);
+        std::thread::scope(|s| {
+            for _ in 0..8 {
+                let b = builder.clone();
+                s.spawn(move || {
+                    for _ in 0..1000 {
+                        drop(b.clone());
+                    }
+                });
+            }
+        });
+        assert_eq!(Arc::strong_count(&builder.peers), 1);
+    }
+
     fn do_test_channel_mesh(nr_peers: usize, channel_size: usize, nr_executors: usize) {
         let mesh_builder = MeshBuilder::full(nr_peers, channel_size);
 
