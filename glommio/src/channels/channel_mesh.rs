@@ -7,7 +7,6 @@ use std::{
     cell::Cell,
     fmt::{self, Debug, Formatter},
     io::{Error, ErrorKind},
-    rc::Rc,
 };
 
 use std::sync::{Arc, RwLock};
@@ -252,7 +251,7 @@ pub type PartialMesh<T> = MeshBuilder<T, Partial>;
 pub struct MeshBuilder<T: Send, A: MeshAdapter> {
     nr_peers: usize,
     channel_size: usize,
-    peers: Rc<RwLock<Vec<Peer>>>,
+    peers: Arc<RwLock<Vec<Peer>>>,
     channels: Arc<SharedChannels<T>>,
     adapter: A,
 }
@@ -309,7 +308,7 @@ impl<T: 'static + Send, A: MeshAdapter> MeshBuilder<T, A> {
         MeshBuilder {
             nr_peers,
             channel_size,
-            peers: Rc::new(RwLock::new(Vec::new())),
+            peers: Arc::new(RwLock::new(Vec::new())),
             channels: Arc::new(Self::placeholder(nr_peers)),
             adapter,
         }
